@@ -28,6 +28,9 @@ int main(){
 		close(c_socket); //자원 회수
 		return -1;  //프로세스 종료
 	}
+
+	while(1){
+
 	//4. 서버에 메시지 보내기 
 	//키보드로부터 메세지 입력 받기
 	fgets(sendBuffer, sizeof(sendBuffer), stdin);
@@ -41,9 +44,13 @@ int main(){
 		printf("Read Failed\n");
 		return -1;
 	}
+
 	rcvBuffer[n] = '\0'; //문자열 뒷부분 깨짐 방지
 	printf("received data: %s\n", rcvBuffer); //서버에서 받은 메세지 출력
 	printf("rcvBuffer length: %d\n", n); //3-2. 서버에섭 다은 메세지의 길이 출력 
+
+	}
+
 	close(c_socket);
 	return 0;	
 }
