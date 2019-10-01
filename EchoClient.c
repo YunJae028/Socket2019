@@ -36,6 +36,9 @@ int main(){
 	fgets(sendBuffer, sizeof(sendBuffer), stdin);
 	//서버로 메세지 전송
 	write(c_socket, sendBuffer, strlen(sendBuffer));
+	//입력받은 메세지가  quit 이면  break
+	if(strncasecmp(sendBuffer, "quit",4)==0)
+		break;
 	//5. 서버에서 보낸 메시지 읽기 
 	n = read(c_socket, rcvBuffer, sizeof(rcvBuffer)); 
 	//서버에서 보내준 메세지를 rcvBuffer에 저장하고, 메세지의 길이를 리턴
