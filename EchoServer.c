@@ -7,6 +7,9 @@
 
 char hi_buffer[100] = "안녕하세요.만나서 반가워요.";
 char rcvBuffer[100];
+char name_buffer[100] ="내 이름은 서윤재야"; 
+char age_buffer[100]="나는 22살이야";
+
 int main(){
 	int c_socket, s_socket;
 	struct sockaddr_in s_addr, c_addr;
@@ -52,6 +55,12 @@ int main(){
 			break;
 		if(strncasecmp(rcvBuffer,"안녕하세요.",16)==0){
 			write(c_socket,hi_buffer,strlen(hi_buffer));
+			continue;}
+		if(strncasecmp(rcvBuffer,"이름이 뭐야?",17)==0){
+			write(c_socket,name_buffer,strlen(name_buffer));
+			continue;}
+		if(strncasecmp(rcvBuffer,"몇 살이야?",14)==0){
+			write(c_socket,age_buffer,strlen(age_buffer));
 			continue;}
 		write(c_socket, rcvBuffer, n); //클라이언트에게 buffer의 내용을 전송함
 	}
