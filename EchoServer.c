@@ -48,11 +48,13 @@ int main(){
 	while(1){
 		n = read(c_socket, rcvBuffer, sizeof(rcvBuffer));
 		printf("rcvBuffer: %s\n", rcvBuffer);
-		if(strncasecmp(rcvBuffer,"quit",4)==0)
+		if(strncasecmp(rcvBuffer,"quit",4)==0||strncasecmp(rcvBuffer,"kill server",11) == 0)
 			break;
 		write(c_socket, rcvBuffer, n); //클라이언트에게 buffer의 내용을 전송함
 	}
 		close(c_socket);
+		if(strncasecmp(rcvBuffer, "kill server", 11)==0)
+				break;
 	}
 	close(s_socket);
 	return 0;	
