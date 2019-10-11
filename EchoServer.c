@@ -9,12 +9,18 @@ char hi_buffer[100] = "안녕하세요.만나서 반가워요.";
 char rcvBuffer[100];
 char name_buffer[100] ="내 이름은 서윤재야"; 
 char age_buffer[100]="나는 22살이야";
+char sep_buffer[100]; 
+char *cmpArr[3];
+char* cmp_buffer;  char* result;
+char* res_buffer;
+
+
 
 int main(){
 	int c_socket, s_socket;
 	struct sockaddr_in s_addr, c_addr;
 	int len;
-	int n;
+	int n,i;
 
 	// 1. 서버 소켓 생성
 	//서버 소켓 = 클라이언트의 접속 요청을 처리(허용)해 주기 위한 소켓
@@ -61,6 +67,24 @@ int main(){
 			continue;}
 		if(strncasecmp(rcvBuffer,"몇 살이야?",14)==0){
 			write(c_socket,age_buffer,strlen(age_buffer));
+			continue;}
+		if(strncasecmp(rcvBuffer,"strlen",6)==0){
+			sprintf(sep_buffer,"문자열 길이 = %d",strlen(rcvBuffer)-7);
+			write(c_socket,sep_buffer,strlen(sep_buffer));
+			continue;}
+		if(strncasecmp(rcvBuffer,"strcmp",6)==0){
+			cmp_buffer = strtok(rcvBuffer," ");
+			i=0;
+			while(cmp_buffer != NULL){
+				cmpArr[i] = cmp_buffer;
+				i++;
+				cmp_buffer = strtok(NULL," ");
+			}
+			if(strcmp(cmpArr[1],cmpArr[2])==0){
+				*result = '0';}
+			else{
+				*result = '1';}
+			write(c_socket,result,strlen(result));
 			continue;}
 		write(c_socket, rcvBuffer, n); //클라이언트에게 buffer의 내용을 전송함
 	}
