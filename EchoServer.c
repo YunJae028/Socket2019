@@ -5,23 +5,15 @@
 
 #define PORT 10000
 
-char hi_buffer[100] = "안녕하세요.만나서 반가워요.";
+char buffer[100];
 char rcvBuffer[100];
-char name_buffer[100] ="내 이름은 서윤재야"; 
-char age_buffer[100]="나는 22살이야";
-char sep_buffer[100]; 
-char *cmpArr[3];
-char* cmp_buffer;  char* result;
-char* res_buffer;
-
-
 
 int main(){
 	int c_socket, s_socket;
 	struct sockaddr_in s_addr, c_addr;
 	int len;
-	int n,i;
-
+	int n;
+	
 	// 1. 서버 소켓 생성
 	//서버 소켓 = 클라이언트의 접속 요청을 처리(허용)해 주기 위한 소켓
 	s_socket = socket(PF_INET, SOCK_STREAM, 0); //TCP/IP 통신을 위한 서버 소켓 생성
@@ -55,39 +47,45 @@ int main(){
 		printf("/client is connected\n");
 		printf("클라이언트 접속 허용\n");
 	while(1){
-		n = read(c_socket, rcvBuffer, sizeof(rcvBuffer));
+		n = read(c_socket, rcvBuffer, sizeof(rcvBuffer)); //n string의 길이 
 		printf("rcvBuffer: %s\n", rcvBuffer);
+		rcvBuffer[n-1] = '\0'; //개행 문자 삭제 
 		if(strncasecmp(rcvBuffer,"quit",4)==0||strncasecmp(rcvBuffer,"kill server",11) == 0)
 			break;
-		if(strncasecmp(rcvBuffer,"안녕하세요.",16)==0){
-			write(c_socket,hi_buffer,strlen(hi_buffer));
-			continue;}
-		if(strncasecmp(rcvBuffer,"이름이 뭐야?",17)==0){
-			write(c_socket,name_buffer,strlen(name_buffer));
-			continue;}
-		if(strncasecmp(rcvBuffer,"몇 살이야?",14)==0){
-			write(c_socket,age_buffer,strlen(age_buffer));
-			continue;}
-		if(strncasecmp(rcvBuffer,"strlen",6)==0){
-			sprintf(sep_buffer,"문자열 길이 = %d",strlen(rcvBuffer)-7);
-			write(c_socket,sep_buffer,strlen(sep_buffer));
-			continue;}
-		if(strncasecmp(rcvBuffer,"strcmp",6)==0){
-			cmp_buffer = strtok(rcvBuffer," ");
+		else if(!strncasecmp(rcvBuffer,"안녕하세요.",strlen("안녕하세요")))
+			//strncasecmp(rcvBuffer,"안녕하세요.",strlen("안녕하세요"))==0 
+				strcpy(buffer,"안녕하세요. 만나서 반가워요");
+		else if(!strncasecmp(rcvBuffer,"이름이 뭐야?",strlen("이름이 뭐야?")))
+				strcpy(buffer,"내 이름은 서윤재");	
+		else if(!strncasecmp(rcvBuffer,"몇 살이야?",strlen("몇 살이야?")))
+				strcpy(buffer,"22살이야");	
+		else if(!strncasecmp(rcvBuffer,"strlen ",strlen("strlen ")))
+				//문자열의 길이는  xx입니다.
+				sprintf(buffer, "문자열의 길이는 %d입니다.", strlen(rcvBuffer)-7);
+		else if(!strncasecmp(rcvBuffer,"strcmp ",strlen("strcmp "))){
+			int i;
+			char* cmpArr[3];
+			char* token;
+			token = strtok(rcvBuffer," ");
 			i=0;
-			while(cmp_buffer != NULL){
-				cmpArr[i] = cmp_buffer;
+			while(token != NULL){
+				cmpArr[i] = token;
 				i++;
-				cmp_buffer = strtok(NULL," ");
+				token = strtok(NULL," ");
 			}
-			if(strcmp(cmpArr[1],cmpArr[2])==0){
-				*result = '0';}
-			else{
-				*result = '1';}
-			write(c_socket,result,strlen(result));
-			continue;}
-		write(c_socket, rcvBuffer, n); //클라이언트에게 buffer의 내용을 전송함
-	}
+			if(i < 3)
+				strcpy(buffer,"문자열을 비교하기 위해서 두 문자열이 필요합니다.");		
+			else if(!strcmp(cmpArr[1],cmpArr[2]))
+				sprintf(buffer,"%s와 %s는 같은 문자열입니다.",cmpArr[1],cmpArr[2]);
+			else
+				sprintf(buffer,"%s와 %s는 다른 문자열입니다.",cmpArr[1],cmpArr[2]);
+		}
+		else
+			strcpy(buffer,"무슨 말인지 모르겠습니다.");
+
+		write(c_socket,buffer,strlen(buffer)); //클라이언트에게 buffer의 내용을 전송함
+		}
+
 		close(c_socket);
 		if(strncasecmp(rcvBuffer, "kill server", 11)==0)
 				break;
