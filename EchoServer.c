@@ -5,7 +5,7 @@
 
 #define PORT 10000
 
-char buffer[100];
+char buffer[255];
 char rcvBuffer[100];
 
 int main(){
@@ -79,6 +79,30 @@ int main(){
 				sprintf(buffer,"%s와 %s는 같은 문자열입니다.",cmpArr[1],cmpArr[2]);
 			else
 				sprintf(buffer,"%s와 %s는 다른 문자열입니다.",cmpArr[1],cmpArr[2]);
+		}
+		else if(!strncasecmp(rcvBuffer,"readfile ",strlen("readfile "))){
+			char * fn;
+			FILE *fp;
+
+			fn = strtok(rcvBuffer," ");
+			fn = strtok(NULL," ");
+			
+			fp = fopen(fn,"r");
+			if(fp)
+				while(fgets(buffer,255,(FILE *)fp));
+		fclose(fp);
+		}
+		else if(!strncasecmp(rcvBuffer,"exec ",strlen("exec "))){
+			char* sn;
+
+			sn = strtok(rcvBuffer," ");
+			sn = strtok(NULL,"\0");
+			
+			int result = system(sn);
+			if(result == 0)
+				sprintf(buffer,"%s command is executed",sn);
+			else 
+				sprintf(buffer,"%s command failed.",sn);
 		}
 		else
 			strcpy(buffer,"무슨 말인지 모르겠습니다.");
