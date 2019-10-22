@@ -2,11 +2,11 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <string.h>
-
 #define PORT 10000
+#define BUFSIZE 10000
 
-char buffer[255];
-char rcvBuffer[100];
+char buffer[BUFSIZE];
+char rcvBuffer[BUFSIZE];
 
 int main(){
 	int c_socket, s_socket;
@@ -79,27 +79,40 @@ int main(){
 				sprintf(buffer,"%s와 %s는 같은 문자열입니다.",cmpArr[1],cmpArr[2]);
 			else
 				sprintf(buffer,"%s와 %s는 다른 문자열입니다.",cmpArr[1],cmpArr[2]);
-		}
+			}
 		else if(!strncasecmp(rcvBuffer,"readfile ",strlen("readfile "))){
-			char * fn;
-			FILE *fp;
-
-			fn = strtok(rcvBuffer," ");
-			fn = strtok(NULL," ");
-			
-			fp = fopen(fn,"r");
-			if(fp)
-				while(fgets(buffer,255,(FILE *)fp));
-		fclose(fp);
+			char* fn;
+			FILE* fp;
+			char* str[10];
+			int cnt = 0;
+			fn = strtok(rcvBuffer," "); //token = readfile
+			while(fn !=NULL){
+				str[cnt] = fn; //str[0] = readfile, str[1]= <파일명>,....
+				cnt++;
+				fn = strtok(NULL," "); //token = <파일명>
+			} 
+			if(cnt < 2){
+				strcpy(buffer, "파일명을 입력해주세요");
+			}else{
+				fp = fopen(str[1],"r"); 
+				if(fp){ ////정상적으로  파일이 오픈 되었다면,
+					char tempStr[BUFSIZE];
+					memset(buffer, 0 ,BUFSIZE); //buffer 초기
+					while(fgets(tempStr,BUFSIZE,(FILE *)fp)){
+						strcat(buffer,tempStr); //여러 줄의 내용을 하나의  buffer에 저장하기 위해  strcat()함수 사용
+					}			
+				fclose(fp); }	
+			else
+				strcpy(buffer,"해당 파일은 존재하지 않습니다.");}
 		}
 		else if(!strncasecmp(rcvBuffer,"exec ",strlen("exec "))){
 			char* sn;
 
 			sn = strtok(rcvBuffer," ");
-			sn = strtok(NULL,"\0");
-			
+			sn = strtok(NULL,"\0"); //exec 뒤에 모든 문자열을 sn으로 저장
+			printf("command : %s\n", sn);
 			int result = system(sn);
-			if(result == 0)
+			if(!result)
 				sprintf(buffer,"%s command is executed",sn);
 			else 
 				sprintf(buffer,"%s command failed.",sn);
